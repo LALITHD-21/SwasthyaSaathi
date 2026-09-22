@@ -12,6 +12,7 @@
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
 [![Telegram Bot](https://img.shields.io/badge/Telegram_Bot-@Swasthya2bot-229ED9?style=for-the-badge&logo=telegram)](https://t.me/Swasthya2bot)
 [![OpenStreetMap](https://img.shields.io/badge/OpenStreetMap-Overpass_API-7EBC6F?style=for-the-badge&logo=openstreetmap)](https://www.openstreetmap.org/)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FLALITHD-21%2FSwasthyaSaathi&env=GEMINI_API_KEY,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,TELEGRAM_BOT_TOKEN,NEXT_PUBLIC_TELEGRAM_BOT_USERNAME&envDescription=API%20Keys%20and%20credentials%20for%20SwasthyaSaathi&project-name=swasthya-saathi&repository-name=swasthya-saathi)
 
 ---
 
