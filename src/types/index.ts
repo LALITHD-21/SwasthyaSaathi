@@ -7,7 +7,9 @@ export const LANGUAGE_LABELS: Record<Language, string> = {
   kn: "ಕನ್ನಡ",
 };
 
-export const SPEECH_LANG_CODES: Record<Language, string> = {
+export type SupportedSpeechLang = "en-IN" | "hi-IN" | "kn-IN";
+
+export const SPEECH_LANG_CODES: Record<Language, SupportedSpeechLang> = {
   en: "en-IN",
   hi: "hi-IN",
   kn: "kn-IN",

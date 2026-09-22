@@ -13,64 +13,62 @@ export default function LandingPage() {
   const { language } = useLanguage();
 
   return (
-    <main className="max-w-md mx-auto min-h-screen flex flex-col justify-between p-4 sm:p-5 text-center bg-gradient-to-b from-sky-50/90 via-white to-sky-100/70 relative overflow-hidden gap-4 pb-8">
+    <main className="max-w-md mx-auto min-h-[calc(100dvh-60px)] flex flex-col justify-between p-4 sm:p-5 gap-5 pb-8 animate-fade-in">
       
-      {/* 24x7 Emergency Helpline Banner */}
-      <a
-        href="tel:108"
-        className="w-full bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white text-xs sm:text-sm font-extrabold py-2.5 px-4 rounded-2xl shadow-md shadow-rose-200 flex items-center justify-between hover:brightness-105 active:scale-98 transition-all"
-      >
-        <span className="flex items-center gap-2">
-          <span className="animate-pulse text-base">🚨</span>
-          <span>{t(language, 'emergencyQuickAccess')}</span>
-        </span>
-        <span className="bg-white text-red-700 px-2.5 py-0.5 rounded-lg text-xs font-black uppercase tracking-wider shadow-2xs">
-          Call 108
-        </span>
-      </a>
-
-      {/* Hero Branding */}
-      <div className="flex flex-col items-center gap-2 mt-1 animate-fade-in">
-        <div className="w-16 h-16 bg-gradient-to-tr from-sky-600 to-cyan-500 rounded-3xl flex items-center justify-center text-3xl shadow-xl shadow-sky-200 text-white">
-          🩺
+      {/* Hero Badge & Headline */}
+      <div className="flex flex-col items-center text-center gap-2 pt-2">
+        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-sky-500/10 via-teal-500/10 to-emerald-500/10 border border-sky-200/80 px-3.5 py-1.5 rounded-full shadow-2xs">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-xs font-black tracking-wide text-sky-950 uppercase">
+            AI Healthcare for Bharat • 24x7
+          </span>
         </div>
 
-        <div>
-          <div className="inline-flex items-center gap-1.5 bg-sky-100 text-sky-800 text-[11px] font-extrabold px-3 py-0.5 rounded-full mb-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>AI Health Companion • 24x7 Active</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-800 via-sky-600 to-teal-700 tracking-tight">
-            SwasthyaSaathi
-          </h1>
-          <p className="text-xs sm:text-sm font-semibold text-gray-500 mt-0.5">
-            {t(language, 'tagline')}
-          </p>
-        </div>
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight mt-1">
+          Speak Your Symptoms.
+          <br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-teal-600 to-cyan-700">
+            Find the Right Doctor Instantly.
+          </span>
+        </h1>
+
+        <p className="text-xs sm:text-sm font-medium text-slate-500 max-w-xs leading-relaxed">
+          Check urgency in <strong className="text-slate-800">Hindi</strong>, <strong className="text-slate-800">Kannada</strong>, or <strong className="text-slate-800">English</strong>. Locate free Govt PHCs and PM-JAY hospitals near you.
+        </p>
       </div>
 
-      {/* Language Picker */}
-      <div className="w-full bg-white/90 backdrop-blur-sm p-3.5 rounded-3xl border border-sky-100 shadow-xs">
-        <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
-          {t(language, 'selectLanguage')}
-        </p>
+      {/* Language Selector Card */}
+      <div className="glass-panel p-3.5 rounded-3xl">
+        <div className="flex items-center justify-between mb-2 px-1">
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+            {t(language, 'selectLanguage')}
+          </span>
+          <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-md">
+            Trilingual Voice AI
+          </span>
+        </div>
         <LanguageSelector />
       </div>
 
-      {/* Hero Interactive Mic CTA */}
-      <div className="flex flex-col items-center justify-center bg-white/80 p-5 rounded-3xl border border-sky-100 shadow-sm relative overflow-hidden">
-        <div className="mb-2">
-          <h2 className="text-2xl font-black text-gray-900 leading-tight">
+      {/* Hero Symptom Studio Console */}
+      <div className="glass-panel rounded-3xl p-6 sm:p-7 relative overflow-hidden text-center flex flex-col items-center shadow-lg shadow-sky-500/5">
+        {/* Ambient Glow Orb */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-to-tr from-sky-400/20 via-teal-400/20 to-cyan-300/20 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 mb-2">
+          <span className="text-xs font-black uppercase tracking-wider text-sky-800 bg-sky-100/90 px-3 py-1 rounded-full shadow-2xs">
+            Tap Microphone & Speak
+          </span>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 mt-2">
             {t(language, 'tapToSpeak')}
           </h2>
-          <p className="text-xs text-gray-500 mt-0.5 font-medium">
-            Speak in Hindi, Kannada, or English
+          <p className="text-xs text-slate-500 mt-0.5">
+            Describe symptoms naturally in your own words
           </p>
         </div>
 
-        <div className="my-2 relative">
-          {/* Subtle Outer Pulsing Wave */}
-          <div className="absolute inset-0 rounded-full bg-sky-400/20 animate-ping pointer-events-none scale-125" />
+        {/* Giant Hero Mic */}
+        <div className="my-3 relative z-10">
           <MicButton
             isListening={false}
             onClick={() => router.push('/check')}
@@ -78,49 +76,55 @@ export default function LandingPage() {
           />
         </div>
 
-        {/* Quick Action Buttons Grid */}
-        <div className="grid grid-cols-2 gap-2 w-full mt-3 pt-3 border-t border-gray-100">
+        {/* Dual Quick Entry Buttons */}
+        <div className="grid grid-cols-2 gap-2.5 w-full mt-3 pt-4 border-t border-slate-100 relative z-10">
           <button
             onClick={() => router.push('/check')}
             type="button"
-            className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-sky-50 hover:bg-sky-100 text-sky-800 rounded-xl font-bold text-xs border border-sky-200 active:scale-95 transition-all"
+            className="flex items-center justify-center gap-2 py-3 px-3 bg-white hover:bg-sky-50 text-slate-800 rounded-2xl font-extrabold text-xs border border-slate-200 shadow-2xs active:scale-95 transition-all"
           >
-            <span>⌨️</span>
-            <span>Type or Pick</span>
+            <span className="text-base">📸</span>
+            <span>Camera Scan</span>
           </button>
 
           <button
-            onClick={() => router.push('/clinics')}
+            onClick={() => router.push('/check')}
             type="button"
-            className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl font-bold text-xs border border-emerald-200 active:scale-95 transition-all"
+            className="flex items-center justify-center gap-2 py-3 px-3 bg-sky-50 hover:bg-sky-100/80 text-sky-900 rounded-2xl font-extrabold text-xs border border-sky-200 shadow-2xs active:scale-95 transition-all"
           >
-            <span>📍</span>
-            <span>Nearby Clinics</span>
+            <span className="text-base">⌨️</span>
+            <span>Type or Pick</span>
           </button>
         </div>
       </div>
 
       {/* 4-Step Patient Journey Guide */}
-      <div className="bg-sky-50/60 rounded-2xl p-3 border border-sky-100/80 text-left text-xs">
-        <span className="font-extrabold text-sky-950 uppercase text-[10px] tracking-wider block mb-2">
-          How SwasthyaSaathi Works:
-        </span>
-        <div className="grid grid-cols-4 gap-1 text-center text-[10px] font-bold text-sky-900">
-          <div className="bg-white p-2 rounded-xl shadow-2xs border border-sky-100">
-            <span className="text-base block mb-0.5">🎤</span>
-            <span>1. Voice/Snap</span>
+      <div className="glass-card rounded-3xl p-4 text-left">
+        <div className="flex items-center justify-between mb-3 px-0.5">
+          <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">
+            How SwasthyaSaathi Works
+          </span>
+          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+            4 Easy Steps
+          </span>
+        </div>
+
+        <div className="grid grid-cols-4 gap-1.5 text-center text-[10px] font-black">
+          <div className="bg-slate-50 hover:bg-white p-2.5 rounded-2xl border border-slate-100 shadow-2xs transition-all">
+            <span className="text-lg block mb-1">🎤</span>
+            <span className="text-slate-800">1. Speak</span>
           </div>
-          <div className="bg-white p-2 rounded-xl shadow-2xs border border-sky-100">
-            <span className="text-base block mb-0.5">⚡</span>
-            <span>2. AI Triage</span>
+          <div className="bg-slate-50 hover:bg-white p-2.5 rounded-2xl border border-slate-100 shadow-2xs transition-all">
+            <span className="text-lg block mb-1">⚡</span>
+            <span className="text-slate-800">2. Triage</span>
           </div>
-          <div className="bg-white p-2 rounded-xl shadow-2xs border border-sky-100">
-            <span className="text-base block mb-0.5">🏛️</span>
-            <span>3. Free PHC</span>
+          <div className="bg-slate-50 hover:bg-white p-2.5 rounded-2xl border border-slate-100 shadow-2xs transition-all">
+            <span className="text-lg block mb-1">🏛️</span>
+            <span className="text-slate-800">3. Free Care</span>
           </div>
-          <div className="bg-white p-2 rounded-xl shadow-2xs border border-sky-100">
-            <span className="text-base block mb-0.5">📋</span>
-            <span>4. PDF Card</span>
+          <div className="bg-slate-50 hover:bg-white p-2.5 rounded-2xl border border-slate-100 shadow-2xs transition-all">
+            <span className="text-lg block mb-1">📋</span>
+            <span className="text-slate-800">4. Card</span>
           </div>
         </div>
       </div>
@@ -131,8 +135,8 @@ export default function LandingPage() {
       </div>
 
       {/* Trust & Safety Footer */}
-      <div className="flex flex-col items-center gap-1.5 pt-2 border-t border-sky-100">
-        <div className="flex items-center justify-center gap-3 text-[11px] font-semibold text-gray-500">
+      <div className="flex flex-col items-center gap-1.5 pt-1 text-center">
+        <div className="flex items-center justify-center gap-2.5 text-[11px] font-bold text-slate-500">
           <span>🔒 100% Free & Private</span>
           <span>•</span>
           <span>⚡ Gemini 3.6 Flash</span>
@@ -140,7 +144,7 @@ export default function LandingPage() {
           <span>🏛️ PM-JAY & PHC</span>
         </div>
 
-        <p className="text-[10px] text-gray-400 font-medium max-w-xs leading-tight">
+        <p className="text-[10px] text-slate-400 font-medium max-w-xs leading-normal">
           {t(language, 'trustStatement')}
         </p>
       </div>

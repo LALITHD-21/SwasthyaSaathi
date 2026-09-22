@@ -6,35 +6,67 @@ import { t, TranslationKeys } from '@/lib/i18n';
 
 interface UrgencyBadgeProps {
   level: UrgencyLevel;
-  size?: 'sm' | 'lg';
+  size?: 'sm' | 'md' | 'lg';
   lang?: Language;
 }
 
-const URGENCY_CONFIG: Record<UrgencyLevel, { bg: string; icon: string; labelKey: TranslationKeys }> = {
+const URGENCY_CONFIG: Record<
+  UrgencyLevel,
+  {
+    containerClass: string;
+    dotClass: string;
+    labelKey: TranslationKeys;
+    icon: string;
+  }
+> = {
   mild: {
-    bg: 'bg-green-100 text-green-800 border-green-200',
-    icon: '🟢',
+    containerClass:
+      'bg-emerald-50 text-emerald-900 border border-emerald-200/80 shadow-xs shadow-emerald-500/10',
+    dotClass: 'bg-emerald-500',
     labelKey: 'urgencyMild',
+    icon: '🟢',
   },
   moderate: {
-    bg: 'bg-amber-100 text-amber-800 border-amber-200',
-    icon: '🟡',
+    containerClass:
+      'bg-amber-50 text-amber-950 border border-amber-200/80 shadow-xs shadow-amber-500/10',
+    dotClass: 'bg-amber-500',
     labelKey: 'urgencyModerate',
+    icon: '🟡',
   },
   urgent: {
-    bg: 'bg-red-100 text-red-800 border-red-200',
-    icon: '🔴',
+    containerClass:
+      'bg-rose-50 text-rose-950 border border-rose-200/90 shadow-xs shadow-rose-500/15',
+    dotClass: 'bg-rose-500',
     labelKey: 'urgencyUrgent',
+    icon: '🔴',
   },
 };
 
-export default function UrgencyBadge({ level, size = 'sm', lang = 'en' }: UrgencyBadgeProps) {
+export default function UrgencyBadge({
+  level,
+  size = 'sm',
+  lang = 'en',
+}: UrgencyBadgeProps) {
   const config = URGENCY_CONFIG[level] || URGENCY_CONFIG.mild;
-  const padding = size === 'lg' ? 'px-6 py-3 text-xl' : 'px-3 py-1 text-sm';
+
+  const sizeClasses = {
+    sm: 'px-3 py-1 text-xs gap-1.5',
+    md: 'px-4 py-1.5 text-sm gap-2',
+    lg: 'px-6 py-2.5 text-base sm:text-lg gap-2.5',
+  }[size];
 
   return (
-    <span className={`inline-flex items-center gap-2 rounded-full border font-bold ${padding} ${config.bg}`}>
-      <span>{config.icon}</span>
+    <span
+      className={`inline-flex items-center rounded-full font-black tracking-tight select-none transition-all ${sizeClasses} ${config.containerClass}`}
+    >
+      <span className="relative flex h-2.5 w-2.5 items-center justify-center">
+        <span
+          className={`absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping ${config.dotClass}`}
+        />
+        <span
+          className={`relative inline-flex h-2 w-2 rounded-full ${config.dotClass}`}
+        />
+      </span>
       <span>{t(lang, config.labelKey)}</span>
     </span>
   );

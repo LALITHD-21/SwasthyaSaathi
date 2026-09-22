@@ -1,6 +1,7 @@
 import './globals.css';
 import { Inter, Noto_Sans_Devanagari } from 'next/font/google';
 import { LanguageProvider } from '@/components/LanguageProvider';
+import HeaderNav from '@/components/HeaderNav';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const notoSansDevanagari = Noto_Sans_Devanagari({ 
@@ -10,8 +11,8 @@ const notoSansDevanagari = Noto_Sans_Devanagari({
 });
 
 export const metadata = {
-  title: 'SwasthyaSaathi',
-  description: 'Voice-first health symptom triage PWA for rural India',
+  title: 'SwasthyaSaathi — AI Health Symptom Companion',
+  description: 'Voice & camera symptom triage and affordable clinic finder for rural & Tier-2 India',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -31,9 +32,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${notoSansDevanagari.variable} antialiased`}>
-      <body className="bg-gradient-to-b from-sky-50 to-white min-h-screen font-sans">
+      <body className="bg-slate-50 min-h-screen font-sans bg-mesh-radial antialiased">
         <LanguageProvider>
-          {children}
+          <div className="flex flex-col min-h-screen">
+            <HeaderNav />
+            <div className="flex-1">
+              {children}
+            </div>
+          </div>
         </LanguageProvider>
       </body>
     </html>

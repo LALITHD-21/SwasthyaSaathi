@@ -7,93 +7,94 @@ import MicButton from '@/components/MicButton';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import PhotoUploadButton from '@/components/PhotoUploadButton';
 import ClarifyingQuestionsModal from '@/components/ClarifyingQuestionsModal';
-import { useSpeechToText, SupportedLang } from '@/hooks/useSpeechToText';
+import { useSpeechToText } from '@/hooks/useSpeechToText';
 import { checkEmergency } from '@/lib/redflags';
-import { t } from '@/lib/i18n';
 import { COMMON_SYMPTOMS, SymptomPreset } from '@/lib/symptomPresets';
 import { ClarifyingQuestion, ClarifyingAnswer } from '@/types';
+import { t } from '@/lib/i18n';
 
 export default function CheckPage() {
   const router = useRouter();
   const { language, speechLangCode } = useLanguage();
-  
+
+  // Mode: voice or manual typing
   const [mode, setMode] = useState<'voice' | 'type'>('voice');
-  const [manualText, setManualText] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [typedText, setTypedText] = useState('');
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
 
-  // Multimodal Photo state
+  // Multimodal Vision
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [imageMimeType, setImageMimeType] = useState<string | null>(null);
 
-  // Multi-Turn Clarifying Questions state
+  // Multi-Turn Clarifying Questions
   const [pendingQuestions, setPendingQuestions] = useState<ClarifyingQuestion[] | null>(null);
 
+  // Submission & Loading State
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Recording Timer State
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+
   const {
-    isListening,
     transcript,
-    errorCode: speechErrorCode,
+    isListening,
     isSupported,
+    errorCode: speechErrorCode,
     startListening,
     stopListening,
     resetTranscript,
-  } = useSpeechToText(speechLangCode as SupportedLang);
+  } = useSpeechToText(speechLangCode);
 
-  // Sync speech transcript into manualText
+  // Recording timer effect
   useEffect(() => {
-    if (transcript) {
-      setManualText(transcript);
-      setSelectedPresetId(null);
+    let interval: any;
+    if (isListening) {
+      interval = setInterval(() => {
+        setRecordingSeconds((prev) => prev + 1);
+      }, 1000);
+    } else {
+      setRecordingSeconds(0);
     }
-  }, [transcript]);
+    return () => clearInterval(interval);
+  }, [isListening]);
 
-  const activeText = manualText.trim();
-  const hasInput = !!activeText || !!imageBase64;
+  const activeText = mode === 'voice' ? transcript : typedText;
+  const hasInput = activeText.trim().length > 0 || !!imageBase64;
 
   const handleToggleMic = () => {
     if (isListening) {
       stopListening();
     } else {
-      setSubmitError(null);
+      setSelectedPresetId(null);
       startListening();
     }
   };
 
   const handleSelectPreset = (preset: SymptomPreset) => {
     const text = preset.fullText[language] || preset.fullText.en;
-    setManualText(text);
     setSelectedPresetId(preset.id);
-    resetTranscript();
-    setSubmitError(null);
-  };
+    setTypedText(text);
+    setMode('type');
 
-  const handleClear = () => {
-    setManualText('');
-    setSelectedPresetId(null);
-    setImageBase64(null);
-    setImageMimeType(null);
-    resetTranscript();
-  };
-
-  const handleImageSelected = (base64: string | null, mime: string | null) => {
-    setImageBase64(base64);
-    setImageMimeType(mime);
-    if (base64 && !manualText) {
-      setManualText('Attached photo of affected area for AI visual examination');
+    if (preset.isEmergency) {
+      router.push('/emergency');
     }
   };
 
-  // Step 1: Initial check & fetch clarifying questions
+  const handleClear = () => {
+    resetTranscript();
+    setTypedText('');
+    setSelectedPresetId(null);
+    setImageBase64(null);
+    setImageMimeType(null);
+  };
+
   const handleInitiateTriage = async () => {
-    if (!hasInput) return;
+    const textToAnalyze = activeText.trim();
+    if (!textToAnalyze && !imageBase64) return;
 
-    const textToAnalyze = activeText || 'Patient submitted a photo of the affected area.';
-
-    // Check emergency red-flags
-    const hasEmergency = checkEmergency(textToAnalyze);
-    if (hasEmergency) {
-      sessionStorage.setItem('emergencyTrigger', textToAnalyze);
+    if (textToAnalyze && checkEmergency(textToAnalyze)) {
       router.push('/emergency');
       return;
     }
@@ -102,12 +103,11 @@ export default function CheckPage() {
     setSubmitError(null);
 
     try {
-      // Check if clarifying questions can help
       const res = await fetch('/api/triage/questions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          transcript: textToAnalyze,
+          transcript: textToAnalyze || 'Patient submitted a photo of the affected area.',
           language,
           imageBase64,
           imageMimeType,
@@ -123,28 +123,23 @@ export default function CheckPage() {
         }
       }
 
-      // If no questions generated, finalize triage directly
       await executeFinalTriage([]);
     } catch {
-      // Fallback directly to final triage
       await executeFinalTriage([]);
     }
   };
 
-  // Step 2: Finalize triage with answers
   const executeFinalTriage = async (answers: ClarifyingAnswer[]) => {
     setIsSubmitting(true);
     setSubmitError(null);
     setPendingQuestions(null);
 
-    const textToAnalyze = activeText || 'Patient submitted a photo of the affected area.';
+    const textToAnalyze = activeText.trim() || 'Patient submitted a photo of the affected area.';
 
     try {
       const response = await fetch('/api/triage', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           transcript: textToAnalyze,
           language,
@@ -160,18 +155,6 @@ export default function CheckPage() {
 
       const result = await response.json();
 
-      if (result.error) {
-        throw new Error(result.error);
-      }
-
-      // Check if Gemini detected red flag in photo or answers
-      if (result.red_flag_triggered) {
-        sessionStorage.setItem('emergencyTrigger', textToAnalyze);
-        router.push('/emergency');
-        return;
-      }
-
-      // Save state
       sessionStorage.setItem('triageResult', JSON.stringify(result));
       sessionStorage.setItem('transcript', textToAnalyze);
       sessionStorage.setItem('language', language);
@@ -181,43 +164,54 @@ export default function CheckPage() {
         sessionStorage.removeItem('attachedImage');
       }
 
-      router.push('/results');
-    } catch (err: any) {
-      console.error(err);
-      setSubmitError('Unable to analyze symptoms right now. Please check your internet connection and try again.');
+      if (result.red_flag_triggered) {
+        router.push('/emergency');
+      } else {
+        router.push('/results');
+      }
+    } catch {
+      setSubmitError('Unable to analyze right now. Please check your connection and tap retry.');
+    } finally {
       setIsSubmitting(false);
     }
   };
 
+  const formatTime = (secs: number) => {
+    const mins = Math.floor(secs / 60);
+    const remainder = secs % 60;
+    return `${mins.toString().padStart(2, '0')}:${remainder.toString().padStart(2, '0')}`;
+  };
+
   if (isSubmitting) {
     return (
-      <main className="max-w-md mx-auto min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-sky-50 to-white text-center">
-        <div className="bg-white p-8 rounded-3xl shadow-xl border border-sky-100 flex flex-col items-center max-w-sm w-full">
+      <main className="max-w-md mx-auto min-h-[calc(100dvh-60px)] flex flex-col justify-center items-center p-6 text-center animate-fade-in">
+        <div className="glass-panel p-8 rounded-3xl flex flex-col items-center gap-4 max-w-sm w-full shadow-2xl">
           <LoadingSpinner text={t(language, 'analyzing')} />
-          <p className="text-xs text-gray-500 mt-4 animate-pulse font-medium">
-            {imageBase64
-              ? 'Analyzing visual features & symptoms with Gemini Vision...'
-              : 'Checking urgency & matching the right specialist doctor...'}
-          </p>
+          <div className="flex items-center gap-2 mt-2">
+            <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
+            <p className="text-xs font-bold text-slate-500">
+              Evaluating symptoms & matching specialist doctor...
+            </p>
+          </div>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="max-w-md mx-auto min-h-screen flex flex-col p-4 sm:p-6 pb-28 gap-5 bg-gradient-to-b from-sky-50 via-white to-sky-50">
+    <main className="max-w-md mx-auto min-h-[calc(100dvh-60px)] flex flex-col p-4 sm:p-5 pb-32 gap-4 animate-fade-in">
       
-      {/* Top Header */}
+      {/* Top Breadcrumb Navigation */}
       <div className="flex items-center justify-between">
         <button
           onClick={() => router.back()}
           type="button"
-          className="text-sky-800 font-semibold py-2 px-3 flex items-center gap-1.5 min-h-[44px] rounded-xl hover:bg-white/80 active:scale-95 transition-all"
+          className="text-slate-700 hover:text-slate-900 font-bold py-2 px-3 flex items-center gap-1.5 rounded-xl hover:bg-white/80 active:scale-95 transition-all text-xs"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
           </svg>
-          {t(language, 'back')}
+          <span>{t(language, 'back')}</span>
         </button>
 
         <span className="text-[11px] font-black uppercase tracking-wider text-sky-700 bg-sky-100/90 px-3 py-1 rounded-full shadow-2xs">
@@ -225,124 +219,165 @@ export default function CheckPage() {
         </span>
       </div>
 
-      {/* Mode Switcher Tabs */}
-      <div className="bg-sky-100/70 p-1.5 rounded-2xl flex gap-1 shadow-inner">
+      {/* Mode Switcher Segmented Control */}
+      <div className="bg-slate-200/60 p-1 rounded-2xl flex gap-1 shadow-inner">
         <button
           onClick={() => setMode('voice')}
           type="button"
-          className={`flex-1 py-3 px-2 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
+          className={`flex-1 py-2.5 px-3 rounded-xl font-extrabold text-xs transition-all duration-200 flex items-center justify-center gap-2 ${
             mode === 'voice'
-              ? 'bg-white text-sky-900 shadow-md scale-[1.02]'
-              : 'text-sky-700 hover:text-sky-900'
+              ? 'bg-white text-slate-900 shadow-sm scale-[1.01]'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          {t(language, 'voiceTab')}
+          <span>🎙️</span>
+          <span>{t(language, 'voiceTab')}</span>
         </button>
+
         <button
           onClick={() => setMode('type')}
           type="button"
-          className={`flex-1 py-3 px-2 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
+          className={`flex-1 py-2.5 px-3 rounded-xl font-extrabold text-xs transition-all duration-200 flex items-center justify-center gap-2 ${
             mode === 'type'
-              ? 'bg-white text-sky-900 shadow-md scale-[1.02]'
-              : 'text-sky-700 hover:text-sky-900'
+              ? 'bg-white text-slate-900 shadow-sm scale-[1.01]'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          {t(language, 'typeTab')}
+          <span>⌨️</span>
+          <span>{t(language, 'typeTab')}</span>
         </button>
       </div>
 
       {/* Voice Mode View */}
       {mode === 'voice' && (
-        <div className="flex flex-col items-center text-center animate-fade-in">
-          <h1 className="text-xl sm:text-2xl font-black text-gray-900 mb-1">
-            {isListening ? t(language, 'listening') : t(language, 'tapToSpeak')}
-          </h1>
-          <p className="text-xs text-gray-500 max-w-xs mb-3">
-            Speak in Hindi, Kannada, or English. Tap again when finished.
-          </p>
+        <div className="glass-panel p-6 rounded-3xl flex flex-col items-center text-center gap-3 relative overflow-hidden shadow-sm">
+          <div>
+            <h1 className="text-xl font-black text-slate-900">
+              {isListening ? t(language, 'listening') : t(language, 'tapToSpeak')}
+            </h1>
+            <p className="text-xs text-slate-500 mt-0.5 font-medium">
+              Speak in Hindi, Kannada, or English. Tap again when finished.
+            </p>
+          </div>
 
-          <MicButton
-            isListening={isListening}
-            onClick={handleToggleMic}
-            size="lg"
-          />
+          {/* Animated Mic Console */}
+          <div className="my-2 relative">
+            {isListening && (
+              <div className="absolute inset-0 rounded-full bg-rose-400/20 animate-ping pointer-events-none scale-125" />
+            )}
+            <MicButton
+              isListening={isListening}
+              onClick={handleToggleMic}
+              size="lg"
+            />
+          </div>
 
-          {/* Real-Time Audio Waves Indicator */}
+          {/* Recording Timer & Waveform Equalizer */}
           {isListening && (
-            <div className="flex items-center gap-1.5 my-3.5 bg-rose-50 px-4 py-2 rounded-full border border-rose-200 shadow-2xs">
-              <span className="w-1.5 h-3 bg-rose-500 rounded-full animate-bounce [animation-delay:0.1s]" />
-              <span className="w-1.5 h-6 bg-rose-500 rounded-full animate-bounce [animation-delay:0.25s]" />
-              <span className="w-1.5 h-4 bg-rose-500 rounded-full animate-bounce [animation-delay:0.15s]" />
-              <span className="w-1.5 h-7 bg-rose-500 rounded-full animate-bounce [animation-delay:0.35s]" />
-              <span className="w-1.5 h-3.5 bg-rose-500 rounded-full animate-bounce [animation-delay:0.2s]" />
-              <span className="text-xs font-bold text-rose-700 ml-1">Recording Audio...</span>
+            <div className="flex items-center gap-3 bg-rose-50 px-4 py-2 rounded-full border border-rose-200 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+              <span className="text-xs font-black text-rose-700 font-mono tracking-wider">
+                {formatTime(recordingSeconds)}
+              </span>
+              <div className="flex items-center gap-1 h-5">
+                <span className="w-1 bg-rose-500 rounded-full animate-wave-1" />
+                <span className="w-1 bg-rose-500 rounded-full animate-wave-2" />
+                <span className="w-1 bg-rose-500 rounded-full animate-wave-3" />
+                <span className="w-1 bg-rose-500 rounded-full animate-wave-4" />
+                <span className="w-1 bg-rose-500 rounded-full animate-wave-5" />
+              </div>
             </div>
           )}
 
           {speechErrorCode === 'network' && (
-            <div className="mt-4 bg-amber-50 text-amber-900 p-3.5 rounded-2xl text-xs font-medium border border-amber-200 flex items-center gap-2.5 text-left shadow-sm">
-              <span className="text-xl flex-shrink-0">💡</span>
+            <div className="mt-2 bg-amber-50 text-amber-900 p-3 rounded-2xl text-xs font-medium border border-amber-200 flex items-center gap-2 text-left">
+              <span className="text-lg">💡</span>
               <p>{t(language, 'speechNetworkHelp')}</p>
             </div>
           )}
 
           {!isSupported && (
-            <div className="mt-4 bg-amber-50 text-amber-900 p-3.5 rounded-2xl text-xs font-medium border border-amber-200 text-left">
+            <div className="mt-2 bg-amber-50 text-amber-900 p-3 rounded-2xl text-xs font-medium border border-amber-200 text-left">
               {t(language, 'speechNotSupported')}
             </div>
           )}
         </div>
       )}
 
+      {/* Multimodal Live Camera & Image Attachment */}
+      <div className="glass-card p-3.5 rounded-3xl border border-sky-100">
+        <PhotoUploadButton
+          imagePreview={imageBase64}
+          onImageSelected={(base64, mime) => {
+            setImageBase64(base64);
+            setImageMimeType(mime);
+          }}
+        />
+      </div>
+
       {/* Symptoms Display / Text Input Area */}
-      <div className="bg-white border-2 border-sky-100 rounded-3xl p-4 shadow-sm relative transition-all duration-200 focus-within:border-sky-400 focus-within:ring-4 focus-within:ring-sky-50">
-        <div className="flex justify-between items-center mb-2 pb-2 border-b border-gray-100">
-          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-            {t(language, 'symptoms')}
+      <div className="glass-card rounded-3xl p-4 shadow-sm border border-slate-200/80 transition-all focus-within:border-sky-500 focus-within:ring-4 focus-within:ring-sky-100">
+        <div className="flex justify-between items-center mb-2 pb-2 border-b border-slate-100">
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+            <span>📝</span>
+            <span>{t(language, 'symptoms')} Statement</span>
           </span>
           {hasInput && (
             <button
               onClick={handleClear}
               type="button"
-              className="text-xs text-rose-500 font-semibold hover:underline"
+              className="text-xs text-rose-600 font-bold hover:underline"
             >
-              Clear
+              Clear All
             </button>
           )}
         </div>
 
-        <textarea
-          value={manualText}
-          onChange={(e) => {
-            setManualText(e.target.value);
-            setSelectedPresetId(null);
-          }}
-          placeholder={t(language, 'typePlaceholder')}
-          className="w-full text-gray-800 text-base sm:text-lg leading-relaxed resize-none focus:outline-none placeholder:text-gray-300 min-h-[90px]"
-          rows={3}
-        />
+        {mode === 'voice' ? (
+          <div className="min-h-[90px] text-sm text-slate-800 leading-relaxed font-medium">
+            {transcript ? (
+              <p className="italic text-slate-900">&ldquo;{transcript}&rdquo;</p>
+            ) : (
+              <p className="text-slate-400 text-xs italic">
+                Your spoken symptoms will appear here in real time...
+              </p>
+            )}
+          </div>
+        ) : (
+          <textarea
+            value={typedText}
+            onChange={(e) => setTypedText(e.target.value)}
+            placeholder={t(language, 'typePlaceholder')}
+            rows={3}
+            className="w-full text-sm text-slate-800 placeholder:text-slate-400 bg-transparent resize-none focus:outline-none leading-relaxed font-medium"
+          />
+        )}
+
+        <div className="flex justify-between items-center pt-2 border-t border-slate-50 text-[10px] text-slate-400 font-semibold">
+          <span>{activeText.length} characters</span>
+          <span className="text-sky-700 bg-sky-50 px-2 py-0.5 rounded-md uppercase font-bold">
+            Language: {language}
+          </span>
+        </div>
       </div>
 
-      {/* Multimodal Photo Upload Section */}
-      <PhotoUploadButton
-        imagePreview={imageBase64}
-        onImageSelected={handleImageSelected}
-      />
-
       {submitError && (
-        <div className="bg-red-50 text-red-700 p-4 rounded-2xl text-sm font-medium border border-red-200 text-center animate-fade-in shadow-sm">
+        <div className="bg-red-50 text-red-700 p-4 rounded-2xl text-xs font-semibold border border-red-200 text-center animate-fade-in shadow-sm">
           {submitError}
         </div>
       )}
 
       {/* One-Tap Common Symptom Cards */}
       <div className="mt-1">
-        <p className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-          <span>✨</span>
-          <span>{t(language, 'quickChipsTitle')}</span>
-        </p>
+        <div className="flex items-center justify-between mb-2.5 px-0.5">
+          <span className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1">
+            <span>✨</span>
+            <span>{t(language, 'quickChipsTitle')}</span>
+          </span>
+          <span className="text-[10px] text-slate-400 font-medium">1-Tap Fill</span>
+        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {COMMON_SYMPTOMS.map((preset) => {
             const isSelected = selectedPresetId === preset.id;
             return (
@@ -350,16 +385,16 @@ export default function CheckPage() {
                 key={preset.id}
                 onClick={() => handleSelectPreset(preset)}
                 type="button"
-                className={`text-left p-3 rounded-2xl border text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-2.5 active:scale-98 ${
+                className={`text-left p-3 rounded-2xl border text-xs font-bold transition-all duration-200 flex items-center gap-2.5 active:scale-98 ${
                   isSelected
-                    ? 'bg-sky-600 text-white border-sky-600 shadow-md'
+                    ? 'bg-sky-600 text-white border-sky-600 shadow-md scale-[1.02]'
                     : preset.isEmergency
-                    ? 'bg-red-50 text-red-800 border-red-200 hover:bg-red-100/70'
-                    : 'bg-white text-gray-800 border-gray-200/90 hover:border-sky-300 hover:bg-sky-50/50 shadow-sm'
+                    ? 'bg-red-50 text-red-800 border-red-200 hover:bg-red-100/80 shadow-2xs'
+                    : 'bg-white text-slate-800 border-slate-200/90 hover:border-sky-300 hover:bg-sky-50/50 shadow-2xs'
                 }`}
               >
                 <span className="text-lg flex-shrink-0">{preset.icon}</span>
-                <span className="leading-tight flex-1 font-semibold">
+                <span className="leading-tight flex-1 truncate">
                   {preset.label[language] || preset.label.en}
                 </span>
               </button>
@@ -370,14 +405,14 @@ export default function CheckPage() {
 
       {/* Sticky Bottom Action Bar */}
       {hasInput && !isListening && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-md border-t border-sky-100 z-20 max-w-md mx-auto shadow-2xl animate-slide-up">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-xl border-t border-slate-200/80 z-20 max-w-md mx-auto shadow-2xl animate-slide-up">
           <button
             onClick={handleInitiateTriage}
             type="button"
-            className="w-full bg-gradient-to-r from-sky-600 via-sky-500 to-cyan-600 text-white font-extrabold text-lg py-4 px-6 rounded-2xl shadow-lg shadow-sky-300 active:scale-98 transition-all flex items-center justify-center gap-3 min-h-[56px] cursor-pointer hover:brightness-105"
+            className="w-full bg-gradient-to-r from-sky-600 via-teal-600 to-cyan-600 text-white font-black text-base py-4 px-6 rounded-2xl shadow-lg shadow-sky-500/25 active:scale-98 transition-all flex items-center justify-center gap-2.5 min-h-[56px] hover:brightness-105 animate-shimmer"
           >
             <span>{t(language, 'submit')}</span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
             </svg>
           </button>

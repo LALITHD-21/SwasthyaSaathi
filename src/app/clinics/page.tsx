@@ -120,14 +120,14 @@ export default function ClinicsPage() {
   });
 
   return (
-    <main className="max-w-md mx-auto min-h-screen flex flex-col p-4 sm:p-5 bg-gradient-to-b from-sky-50/80 via-white to-sky-50 gap-4 pb-32">
+    <main className="max-w-md mx-auto min-h-[calc(100dvh-60px)] flex flex-col p-4 sm:p-5 pb-36 gap-4 animate-fade-in">
       
       {/* Top Breadcrumb Navigation */}
       <div className="flex items-center justify-between">
         <button
           onClick={() => router.push('/results')}
           type="button"
-          className="text-sky-800 font-semibold py-2 px-3 flex items-center gap-1.5 min-h-[44px] rounded-xl hover:bg-white/80 active:scale-95 transition-all text-xs"
+          className="text-slate-700 hover:text-slate-900 font-bold py-2 px-3 flex items-center gap-1.5 rounded-xl hover:bg-white/80 active:scale-95 transition-all text-xs"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -142,26 +142,26 @@ export default function ClinicsPage() {
 
       {/* Page Title */}
       <div className="flex flex-col gap-0.5">
-        <h1 className="text-2xl font-black text-gray-900 tracking-tight">
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight">
           {t(language, 'nearbyClinics')}
         </h1>
-        <p className="text-xs text-gray-500 font-medium">
+        <p className="text-xs text-slate-500 font-medium">
           Free Government PHCs, PM-JAY Ayushman Hospitals & Generic Pharmacies
         </p>
       </div>
 
-      {/* Real-Time Location Card */}
-      <div className="bg-white p-4 rounded-3xl border border-sky-200/90 shadow-sm flex flex-col gap-3">
+      {/* Real-Time Location Glass Card */}
+      <div className="glass-card p-4 rounded-3xl border border-slate-200/90 shadow-sm flex flex-col gap-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
-            <span className="w-9 h-9 rounded-2xl bg-sky-100/80 text-sky-700 flex items-center justify-center text-lg flex-shrink-0 shadow-2xs">
+            <span className="w-9 h-9 rounded-2xl bg-sky-50 text-sky-700 border border-sky-100 flex items-center justify-center text-lg flex-shrink-0">
               📍
             </span>
             <div className="text-left min-w-0 truncate">
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
                 Current Location:
               </span>
-              <span className="text-sm font-extrabold text-gray-900 block truncate">
+              <span className="text-sm font-black text-slate-900 block truncate">
                 {localityName || 'Detecting realtime location...'}
               </span>
             </div>
@@ -171,7 +171,7 @@ export default function ClinicsPage() {
             onClick={requestLocation}
             disabled={geoLoading}
             type="button"
-            className="flex-shrink-0 text-xs font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 py-1.5 px-3 rounded-xl border border-sky-200 active:scale-95 transition-all flex items-center gap-1"
+            className="flex-shrink-0 text-xs font-black text-sky-700 bg-sky-50 hover:bg-sky-100 py-1.5 px-3 rounded-xl border border-sky-200/80 active:scale-95 transition-all flex items-center gap-1 shadow-2xs"
             title="Refresh GPS"
           >
             <span className={geoLoading ? 'animate-spin inline-block' : ''}>🔄</span>
@@ -180,14 +180,14 @@ export default function ClinicsPage() {
         </div>
 
         {/* Live GPS Accuracy & Status Note */}
-        <div className="flex items-center justify-between text-[11px] pt-2 border-t border-gray-100">
+        <div className="flex items-center justify-between text-[11px] pt-2 border-t border-slate-100">
           {isLiveGps ? (
-            <span className="text-emerald-700 font-bold flex items-center gap-1">
+            <span className="text-emerald-700 font-extrabold flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
               <span>Realtime GPS Active {accuracy ? `(±${accuracy}m)` : ''}</span>
             </span>
           ) : (
-            <span className="text-amber-700 font-medium flex items-center gap-1">
+            <span className="text-amber-800 font-semibold flex items-center gap-1">
               <span>●</span>
               <span>{geoError || 'Estimated Location'}</span>
             </span>
@@ -195,16 +195,16 @@ export default function ClinicsPage() {
 
           {/* Radius Selector */}
           <div className="flex items-center gap-1.5 text-xs">
-            <span className="text-gray-400 font-medium">Radius:</span>
+            <span className="text-slate-400 font-bold text-[10px]">Radius:</span>
             {[5, 10, 20].map((r) => (
               <button
                 key={r}
                 onClick={() => setRadiusKm(r)}
                 type="button"
-                className={`px-2 py-0.5 rounded-lg font-bold text-[10px] transition-all ${
+                className={`px-2 py-0.5 rounded-lg font-black text-[10px] transition-all ${
                   radiusKm === r
                     ? 'bg-sky-600 text-white shadow-2xs'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 {r}km
@@ -221,12 +221,12 @@ export default function ClinicsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search town, village, or PIN code..."
-              className="flex-1 bg-sky-50/50 border border-sky-200 rounded-xl px-3 py-2 text-xs font-semibold text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors"
             />
             <button
               type="submit"
               disabled={isSearchingLocation}
-              className="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl active:scale-95 shadow-2xs transition-all flex items-center gap-1"
+              className="bg-slate-900 hover:bg-slate-800 text-white font-black text-xs px-3.5 py-2 rounded-xl active:scale-95 shadow-2xs transition-all flex items-center gap-1"
             >
               <span>🔍</span>
               <span>{isSearchingLocation ? '...' : 'Find'}</span>
@@ -235,9 +235,9 @@ export default function ClinicsPage() {
 
           {/* Dropdown Suggestions */}
           {showSearchDropdown && (
-            <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-sky-200 rounded-2xl shadow-xl z-30 max-h-48 overflow-y-auto p-1 text-left text-xs animate-fade-in">
+            <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl z-30 max-h-48 overflow-y-auto p-1 text-left text-xs animate-fade-in">
               {searchResults.length === 0 && !isSearchingLocation ? (
-                <div className="p-3 text-center text-gray-500 font-medium">
+                <div className="p-3 text-center text-slate-500 font-medium">
                   No places found. Try another district or spelling.
                 </div>
               ) : (
@@ -246,11 +246,11 @@ export default function ClinicsPage() {
                     key={idx}
                     type="button"
                     onClick={() => selectSearchResult(item)}
-                    className="w-full text-left p-2.5 hover:bg-sky-50 rounded-xl transition-colors border-b border-gray-50 last:border-none flex items-center justify-between"
+                    className="w-full text-left p-2.5 hover:bg-sky-50 rounded-xl transition-colors border-b border-slate-50 last:border-none flex items-center justify-between"
                   >
                     <div className="truncate pr-2">
-                      <strong className="block text-gray-900">{item.name}</strong>
-                      <span className="text-[10px] text-gray-400 truncate block">{item.displayName}</span>
+                      <strong className="block text-slate-900">{item.name}</strong>
+                      <span className="text-[10px] text-slate-400 truncate block">{item.displayName}</span>
                     </div>
                     <span className="text-sky-600 font-bold flex-shrink-0">&rarr;</span>
                   </button>
@@ -262,13 +262,13 @@ export default function ClinicsPage() {
 
         {/* Quick Indian City Chips */}
         <div className="flex gap-1.5 overflow-x-auto pb-0.5 no-scrollbar text-[11px]">
-          <span className="text-gray-400 self-center font-medium pr-1 text-[10px]">Quick:</span>
+          <span className="text-slate-400 self-center font-bold pr-1 text-[10px]">Hubs:</span>
           {POPULAR_HUBS.map((hub) => (
             <button
               key={hub.name}
               type="button"
               onClick={() => setLocation(hub.lat, hub.lng, hub.name)}
-              className="bg-sky-50 hover:bg-sky-100 text-sky-800 font-semibold px-2.5 py-1 rounded-lg whitespace-nowrap border border-sky-100 active:scale-95 transition-all shadow-2xs"
+              className="bg-slate-100 hover:bg-sky-50 hover:text-sky-800 text-slate-700 font-bold px-2.5 py-1 rounded-lg whitespace-nowrap border border-slate-200/80 active:scale-95 transition-all shadow-2xs text-[10px]"
             >
               {hub.name}
             </button>
@@ -281,10 +281,10 @@ export default function ClinicsPage() {
         <button
           onClick={() => setFilterCategory('all')}
           type="button"
-          className={`py-2 px-3 rounded-xl font-bold whitespace-nowrap transition-all active:scale-95 ${
+          className={`py-2 px-3 rounded-xl font-black whitespace-nowrap transition-all active:scale-95 ${
             filterCategory === 'all'
-              ? 'bg-sky-600 text-white shadow-sm'
-              : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+              ? 'bg-slate-900 text-white shadow-sm'
+              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
           }`}
         >
           {t(language, 'filterAll')} ({clinics.length})
@@ -293,10 +293,10 @@ export default function ClinicsPage() {
         <button
           onClick={() => setFilterCategory('govt')}
           type="button"
-          className={`py-2 px-3 rounded-xl font-bold whitespace-nowrap transition-all active:scale-95 ${
+          className={`py-2 px-3 rounded-xl font-black whitespace-nowrap transition-all active:scale-95 ${
             filterCategory === 'govt'
               ? 'bg-emerald-700 text-white shadow-sm'
-              : 'bg-white text-emerald-800 border border-emerald-200 hover:bg-emerald-50'
+              : 'bg-white text-emerald-800 border border-emerald-200/90 hover:bg-emerald-50'
           }`}
         >
           {t(language, 'filterGovt')}
@@ -305,10 +305,10 @@ export default function ClinicsPage() {
         <button
           onClick={() => setFilterCategory('ayushman')}
           type="button"
-          className={`py-2 px-3 rounded-xl font-bold whitespace-nowrap transition-all active:scale-95 ${
+          className={`py-2 px-3 rounded-xl font-black whitespace-nowrap transition-all active:scale-95 ${
             filterCategory === 'ayushman'
               ? 'bg-amber-600 text-white shadow-sm'
-              : 'bg-white text-amber-800 border border-amber-200 hover:bg-amber-50'
+              : 'bg-white text-amber-900 border border-amber-200/90 hover:bg-amber-50'
           }`}
         >
           {t(language, 'filterAyushman')}
@@ -317,10 +317,10 @@ export default function ClinicsPage() {
         <button
           onClick={() => setFilterCategory('janaushadhi')}
           type="button"
-          className={`py-2 px-3 rounded-xl font-bold whitespace-nowrap transition-all active:scale-95 ${
+          className={`py-2 px-3 rounded-xl font-black whitespace-nowrap transition-all active:scale-95 ${
             filterCategory === 'janaushadhi'
               ? 'bg-purple-600 text-white shadow-sm'
-              : 'bg-white text-purple-800 border border-purple-200 hover:bg-purple-50'
+              : 'bg-white text-purple-900 border border-purple-200/90 hover:bg-purple-50'
           }`}
         >
           {t(language, 'filterJanaushadhi')}
@@ -329,37 +329,37 @@ export default function ClinicsPage() {
 
       {/* Facilities List or States */}
       {loading ? (
-        <div className="flex-1 flex flex-col items-center justify-center p-8 bg-white rounded-3xl border border-sky-100 shadow-sm animate-pulse">
+        <div className="flex-1 flex flex-col items-center justify-center p-8 glass-card rounded-3xl border border-slate-200/80 shadow-sm animate-pulse">
           <LoadingSpinner text={t(language, 'loadingClinics')} />
-          <p className="text-xs text-gray-400 mt-2">
+          <p className="text-xs text-slate-400 mt-2 font-medium">
             Searching verified healthcare nodes around your coordinates...
           </p>
         </div>
       ) : fetchError ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 p-6 bg-white rounded-3xl border border-red-100 shadow-sm">
-          <div className="text-red-600 bg-red-50 p-4 rounded-2xl border border-red-100 w-full text-xs font-semibold">
+        <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 p-6 glass-card rounded-3xl border border-rose-200 shadow-sm">
+          <div className="text-rose-700 bg-rose-50 p-4 rounded-2xl border border-rose-100 w-full text-xs font-bold">
             {fetchError}
           </div>
           <button
             onClick={() => latitude && longitude && fetchClinics(latitude, longitude, specialist, radiusKm * 1000)}
             type="button"
-            className="bg-sky-600 text-white px-6 py-3 rounded-2xl font-bold active:scale-95 shadow-md text-xs"
+            className="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black active:scale-95 shadow-md text-xs"
           >
             🔄 Retry Search
           </button>
         </div>
       ) : filteredClinics.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-white rounded-3xl border border-sky-100 shadow-sm text-gray-500">
+        <div className="flex-1 flex flex-col items-center justify-center text-center p-8 glass-card rounded-3xl border border-slate-200/80 shadow-sm text-slate-500">
           <span className="text-4xl mb-2">🏥</span>
-          <p className="font-bold text-gray-800 text-sm">No centers match this filter in your area.</p>
-          <p className="text-xs text-gray-400 mt-1">Try expanding the search radius or viewing all facilities.</p>
+          <p className="font-black text-slate-800 text-sm">No centers match this filter in your area.</p>
+          <p className="text-xs text-slate-400 mt-1">Try expanding the search radius or viewing all facilities.</p>
           <button
             onClick={() => {
               setFilterCategory('all');
               setRadiusKm(20);
             }}
             type="button"
-            className="text-xs font-bold text-sky-600 hover:underline mt-3 bg-sky-50 py-2 px-4 rounded-xl border border-sky-200"
+            className="text-xs font-black text-sky-700 hover:underline mt-3 bg-sky-50 py-2 px-4 rounded-xl border border-sky-200"
           >
             Expand Radius & View All Facilities
           </button>
@@ -367,10 +367,10 @@ export default function ClinicsPage() {
       ) : (
         <div className="flex flex-col gap-3">
           <div className="flex justify-between items-center px-1">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <span className="text-xs font-black text-slate-500 uppercase tracking-wider">
               {filteredClinics.length} Facilities Found
             </span>
-            <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">
+            <span className="text-[11px] font-black text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
               Sorted nearest first ✓
             </span>
           </div>
@@ -382,11 +382,11 @@ export default function ClinicsPage() {
       )}
 
       {/* Fixed Floating CTA to proceed to Doctor Summary Card */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-md border-t border-sky-100 z-20 max-w-md mx-auto shadow-2xl">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-xl border-t border-slate-200/80 z-20 max-w-md mx-auto shadow-2xl">
         <button
           onClick={() => router.push('/summary')}
           type="button"
-          className="w-full bg-gradient-to-r from-sky-600 via-sky-500 to-cyan-600 text-white font-extrabold text-base py-3.5 rounded-2xl shadow-lg shadow-sky-200 active:scale-98 transition-all flex items-center justify-center gap-2 hover:brightness-105"
+          className="w-full bg-gradient-to-r from-sky-600 via-teal-600 to-cyan-600 text-white font-black text-base py-3.5 rounded-2xl shadow-lg shadow-sky-500/25 active:scale-98 transition-all flex items-center justify-center gap-2 hover:brightness-105 min-h-[52px]"
         >
           <span>📋</span>
           <span>{t(language, 'generateSummary')} &rarr;</span>
