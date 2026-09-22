@@ -1,5 +1,9 @@
-# SwasthyaSaathi (स्वास्थ्य साथी / ಸ್ವಾಸ್ಥ್ಯ ಸಾಥಿ)
-### AI Health Symptom-to-Action Companion for Rural & Tier-2 India
+<p align="center">
+  <img src="public/logo.png" alt="SwasthyaSaathi Logo" width="180" />
+</p>
+
+<h1 align="center">SwasthyaSaathi (स्वास्थ्य साथी / ಸ್ವಾಸ್ಥ್ಯ ಸಾಥಿ)</h1>
+<p align="center"><strong>AI Health Symptom-to-Action Companion for Rural & Tier-2 India</strong></p>
 
 [![Next.js 14](https://img.shields.io/badge/Next.js-14.2-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)

@@ -14,6 +14,10 @@ export const metadata = {
   title: 'SwasthyaSaathi — AI Health Symptom Companion',
   description: 'Voice & camera symptom triage and affordable clinic finder for rural & Tier-2 India',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/favicon.png',
+    apple: '/logo.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

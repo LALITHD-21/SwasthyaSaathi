@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useLanguage } from './LanguageProvider';
 import { Language } from '@/types';
 
+import Image from 'next/image';
+
 export default function HeaderNav() {
   const { language, setLanguage } = useLanguage();
 
@@ -16,12 +18,19 @@ export default function HeaderNav() {
 
   return (
     <header className="sticky top-0 z-40 w-full glass-nav backdrop-blur-xl">
-      <div className="max-w-md mx-auto px-4 py-2.5 flex items-center justify-between">
+      <div className="max-w-md mx-auto px-4 py-2 flex items-center justify-between">
         
         {/* Brand Logo & Name */}
         <Link href="/" className="flex items-center gap-2.5 group active:scale-98 transition-transform">
-          <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-sky-600 via-teal-500 to-cyan-500 text-white flex items-center justify-center text-lg shadow-md shadow-sky-500/20 group-hover:scale-105 transition-transform flex-shrink-0">
-            🩺
+          <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200/90 shadow-sm p-1 flex items-center justify-center group-hover:scale-105 group-hover:border-sky-300 transition-all flex-shrink-0">
+            <Image
+              src="/logo.png"
+              alt="SwasthyaSaathi Logo"
+              width={36}
+              height={36}
+              className="w-full h-full object-contain"
+              priority
+            />
           </div>
           <div className="text-left">
             <div className="flex items-center gap-1.5">

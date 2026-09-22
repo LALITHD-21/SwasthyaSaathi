@@ -8,6 +8,7 @@ import { TriageResult, SPECIALIST_LABELS, SpecialistType } from '@/types';
 import { generateSummaryPDF } from '@/lib/pdf';
 import { t } from '@/lib/i18n';
 import Link from 'next/link';
+import Image from 'next/image';
 import TelegramBotCard from '@/components/TelegramBotCard';
 
 export default function SummaryPage() {
@@ -155,10 +156,16 @@ export default function SummaryPage() {
           
           <div className="flex justify-between items-start relative z-10">
             <div>
-              <div className="flex items-center gap-2">
-                <span className="w-7 h-7 rounded-lg bg-sky-500/30 border border-sky-400/40 flex items-center justify-center text-sm">
-                  🩺
-                </span>
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-white p-0.5 flex items-center justify-center shadow-xs flex-shrink-0">
+                  <Image
+                    src="/logo.png"
+                    alt="SwasthyaSaathi"
+                    width={30}
+                    height={30}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
                 <span className="font-black text-lg tracking-tight text-white">
                   SwasthyaSaathi
                 </span>

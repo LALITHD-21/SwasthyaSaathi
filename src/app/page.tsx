@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useLanguage } from '@/components/LanguageProvider';
 import LanguageSelector from '@/components/LanguageSelector';
 import MicButton from '@/components/MicButton';
@@ -15,8 +16,21 @@ export default function LandingPage() {
   return (
     <main className="max-w-md mx-auto min-h-[calc(100dvh-60px)] flex flex-col justify-between p-4 sm:p-5 gap-5 pb-8 animate-fade-in">
       
-      {/* Hero Badge & Headline */}
-      <div className="flex flex-col items-center text-center gap-2 pt-2">
+      {/* Hero Badge, Logo & Headline */}
+      <div className="flex flex-col items-center text-center gap-2 pt-1">
+        <div className="relative mb-0.5 group">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-white p-2 border border-slate-200/90 shadow-md shadow-sky-500/10 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <Image
+              src="/logo.png"
+              alt="SwasthyaSaathi Official Logo"
+              width={88}
+              height={88}
+              className="w-full h-full object-contain"
+              priority
+            />
+          </div>
+        </div>
+
         <div className="inline-flex items-center gap-2 bg-gradient-to-r from-sky-500/10 via-teal-500/10 to-emerald-500/10 border border-sky-200/80 px-3.5 py-1.5 rounded-full shadow-2xs">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span className="text-xs font-black tracking-wide text-sky-950 uppercase">
